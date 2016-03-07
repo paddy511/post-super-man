@@ -1,0 +1,139 @@
+<div class="panel panel-info ml15">
+    <div class="panel-heading">
+        <h3 class="panel-title">Http Resquest</h3>
+    </div>
+    <div class="panel-body">
+        <form name="requestForm">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button ng-click="toggleUrlMethodSelect()" type="button" class="btn btn-default dropdown-toggle">{{req_info.method}} <span class="caret"></span></button>
+                        <ul ng-mouseleave="hideUrlMethodSelect()" class="dropdown-menu" ng-style="isShowUrlMethodSelect()">
+                            <li><a ng-click="chooseMethod('GET')">GET</a></li>
+                            <li><a ng-click="chooseMethod('POST')">POST</a></li>
+                            <li><a ng-click="chooseMethod('DELETE')">DELETE</a></li>
+                            <li><a ng-click="chooseMethod('PATCH')">PATCH</a></li>
+                            <li><a ng-click="chooseMethod('PUT')">PUT</a></li>
+                        </ul>
+                    </div>
+                    <input type="text" name="url" class="form-control" placeholder="Please write your url ..." ng-model="req_info.url" required/>
+                </div>
+            </div>
+            <div class="form-group mt15" ng-show="requestForm.url.$dirty && requestForm.url.$error.required">
+                <div class="alert alert-danger">
+                    <i class="glyphicon glyphicon-remove"></i>
+                    url 不能为空!
+                </div>
+            </div>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="cup" ng-class="{true: 'active'}[requestTab === 'headers']" ng-click="chooseRequestTab('headers')"><a>Headers</a> </li>
+                <li ng-show="hasBody()" role="presentation" class="cup" ng-class="{true: 'active'}[requestTab === 'body']" ng-click="chooseRequestTab('body')"><a>Body</a></li>
+            </ul>
+            <!--BODY-->
+            <div class="form-group mt15" ng-show="hasBody() && requestTab === 'body'">
+                <label class="radio-inline">
+                    <input type="radio" name="content-type" ng-model="req_info.contentType" ng-value="CONTENT_TYPE_VALUE.X_WWW_FORM_URLENCODED"> x-www-form-urlencoded
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="content-type" ng-model="req_info.contentType" ng-value="CONTENT_TYPE_VALUE.JSON"> application/json
+                </label>
+
+                <!--x-xxx-form-->
+                <div ng-show="req_info.contentType === CONTENT_TYPE_VALUE.X_WWW_FORM_URLENCODED" class="mt15">
+                    <div class="form-inline xxx-form-data" ng-repeat="query in req_info.data.XWWWFormData ">
+                        <input type="text" class="form-control" placeholder="key" ng-model="query.key">
+                        <input type="text" class="form-control" placeholder="value" ng-model="query.value">
+                        <i class="glyphicon glyphicon-remove form-data-remove" ng-click="removeXWWWFormData($index)"></i>
+                    </div>
+
+                    <div class="form-inline input-xxx-form-data">
+                        <input type="text" class="form-control" placeholder="key" ng-model="input_xxx_form_data.key">
+                        <input type="text" class="form-control " placeholder="value" ng-model="input_xxx_form_data.value">
+                        <i class="glyphicon glyphicon-ok form-data-add" ng-click="addXWWWFormData()"></i>
+                    </div>
+                </div>
+
+                <!--x-xxx-form-->
+
+                <!--json data body-->
+                <div ng-show="req_info.contentType === CONTENT_TYPE_VALUE.JSON" class="mt15">
+                    <textarea  style="resize: none;" class="form-control" rows="8" ng-model="req_info.data.json"></textarea>
+                    <div class="form-group mt15" ng-show="isError.json">
+                        <div class="alert alert-danger">
+                            <i class="glyphicon glyphicon-remove"></i>
+                            json 格式错误!
+                        </div>
+                    </div>
+                </div>
+                <!--json data body-->
+            </div>
+            <!--HEADERS-->
+            <div class="form-group" ng-show="requestTab === 'headers'">
+                <div class="mt15">
+                    <div class="form-inline xxx-form-data" ng-repeat="(key,value) in req_info.headers ">
+                        <span class="key">{{key}} :</span>
+                        <!--<input type="text" class="form-control" placeholder="key" ng-model="key" disabled>-->
+                        <input type="text" class="form-control" placeholder="value" ng-model="req_info.headers[key]">
+                        <i class="glyphicon glyphicon-remove form-data-remove" ng-click="removeHeader(key)"></i>
+                    </div>
+                    <div class="form-inline input-xxx-form-data">
+                        <input type="text" class="form-control" placeholder="key" ng-model="input_header.key">
+                        <input type="text" class="form-control " placeholder="value" ng-model="input_header.value">
+                        <i class="glyphicon glyphicon-ok form-data-add" ng-click="addHeader()"></i>
+                    </div>
+                    <div class="form-group mt15" ng-show="isError.isNullHeader">
+                        <div class="alert alert-danger">
+                            <i class="glyphicon glyphicon-remove"></i>
+                            key 值不能为空!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <input class="btn btn-primary" ng-disabled="requestForm.$invalid" type="button" value="send" ng-click="send()">
+            <input class="btn btn-info" type="button" value="reset" ng-click="reset()">
+        </form>
+    </div>
+</div>
+
+<div ng-show="isSending" class="alert alert-warning ml15">
+    <i class="fa fa-spinner fa-spin"></i> sending...
+</div>
+
+<div class="panel panel-success ml15" ng-show="resultInfo.isShow">
+    <div class="panel-heading">
+        <h3 class="panel-title">Result</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="nav nav-tabs">
+            <li ng-show="resultInfo.postData" role="presentation" class="cup" ng-class="{true: 'active'}[resultTab === 'post_data']" ng-click="chooseResultTab('post_data')"><a>Post Data</a> </li>
+            <li ng-show="resultInfo.reqHeaders" role="presentation" class="cup" ng-class="{true: 'active'}[resultTab === 'request_headers']" ng-click="chooseResultTab('request_headers')"><a>Request Headers</a></li>
+            <li ng-show="resultInfo.resData" role="presentation" class="cup" ng-class="{true: 'active'}[resultTab === 'response']" ng-click="chooseResultTab('response')"><a>Response</a></li>
+            <li ng-show="resultInfo.resHeaders" role="presentation" class="cup" ng-class="{true: 'active'}[resultTab === 'response_headers']" ng-click="chooseResultTab('response_headers')"><a>Response Headers</a></li>
+            <li ng-show="resultInfo.errorMsg" role="presentation" class="cup" ng-class="{true: 'active'}[resultTab === 'error_message']" ng-click="chooseResultTab('error_message')"><a>Error Message</a></li>
+        </ul>
+        <div ng-show="resultTab === 'post_data'">
+            <post-data-formator post-data="resultInfo.postData" content-type="req_info.contentType"></post-data-formator>
+        </div>
+        <div ng-show="resultTab === 'request_headers'">
+            <table class="table">
+                <tr ng-repeat="(key, value) in resultInfo.reqHeaders">
+                    <td>{{key}}</td><td>{{value}}</td>
+                </tr>
+            </table>
+        </div>
+        <div ng-show="resultTab === 'response'">
+            <res-data-formator res-data="resultInfo.resData" ></res-data-formator>
+        </div>
+        <div ng-show="resultTab === 'response_headers'">
+            <table class="table">
+                <tr ng-repeat="(key, value) in resultInfo.resHeaders">
+                    <td class="wsnw">{{key}}</td><td class="wwbw">{{value}}</td>
+                </tr>
+            </table>
+        </div>
+        <div ng-show="resultTab === 'error_message'">
+            {{resultInfo.errorMsg}}
+        </div>
+    </div>
+</div>

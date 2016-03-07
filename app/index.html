@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>POST-SUPERMAN</title>
+    <link rel="stylesheet" href="../public/bootstrap-3.3.6-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../public/font-awesome-4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../dist/post-super-man.css">
+    <script>
+        window.node_fs = require('fs');
+        window.node_http = require('http');
+        window.node_querystring = require('querystring');
+        window.node_url = require('url');
+        window.node_zlib = require('zlib');
+        window.Buffer = Buffer;
+    </script>
+</head>
+<body ng-app="mainModule">
+    <div ui-view></div>
+<script src="../dist/post-super-man.js"></script>
+</body>
+</html>

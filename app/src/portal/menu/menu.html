@@ -1,0 +1,11 @@
+<div ng-class="{true:'menu-hide', false: 'menu-show'}[isExtend]" >
+    <ul class="nav nav-pills nav-stacked">
+        <li role="presentation" class="active menu-row"><a ui-sref="index.portal.httpRequest">Http_Request</a></li>
+        <li role="presentation" class="menu-row"><a >Profile</a></li>
+        <li role="presentation" class="menu-row"><a >Messages</a></li>
+    </ul>
+</div><div class="scroll-bar" ng-click="isExtend = !isExtend">
+    <i ng-class="{true:'glyphicon glyphicon-triangle-right', false: 'glyphicon glyphicon-triangle-left'}[isExtend]"></i>
+</div><div ng-class="{true:'content-extend', false: 'content'}[isExtend]" ui-view>
+
+</div>
